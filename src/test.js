@@ -12,6 +12,10 @@ function getColorScheme() {
     return null;
 }
 
+function setColorSchemeClass(element) {
+    element.class = chosenColorScheme
+}
+
 function mapElementId(lineIndex,element) {
     return btoa("${lineIndex}.${element.localName}");
 }
