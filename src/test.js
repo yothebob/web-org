@@ -12,6 +12,10 @@ function getColorScheme() {
     return null;
 }
 
+function mapElementId(lineIndex,element) {
+    return btoa("${lineIndex}.${element.localName}");
+}
+
 function createHeader(line,lineIndex) {
     // create a new hX header with proper class
     let headerSize = 0;
@@ -21,27 +25,49 @@ function createHeader(line,lineIndex) {
 	}
     }
     headerSize = headerSize > 5 ? 5 : headerSize;
-    newHeader = docment.createElement("h{headerSize}")
-    newHeader.class = chosenColorScheme
-    newHeader.id = btoa("${lineIndex}.header");
+    let newHeader = docment.createElement("h{headerSize}");
+    newHeader.class = chosenColorScheme;
+    newHeader.id = mapElementId(lineIndex,newHeader);
     newHeader.value = line
     return newHeader.id
 }
 
 function createTable(line,lineIndex) {
-    // create a new hX header with proper class
-    let headerSize = 0;
-    for (let i=0;i<line.length;i++) {
-	if (line[i] === "*") {
-	    headerSize += 1;
+    // check if there is allready a table header, if not make one. else make anoither table row
+    let tableTag = false;
+    for (var i = mappedTextArea.length; i > 0; i--) {
+	if (mappedTextArea[i] != null) {
+	    if (atob(mappedTextArea[i]).toLowerCase().includes("table")) {
+		tableTag = true;
+	    }
+	}
+	    
+    }  //check for table tag
+    if (tableTag) {
+	// need  to add and map id's for all these elements
+	let tableObject = document.getElementById(mappedTextArea[lineIndex])
+	let newTableRow = document.createElement("tr");
+	newTableObject[0] = newTableRow;
+	let splitTableData = line.split("|");
+	for (let i=0; i< splitTableData.length;i++) {
+	    let newTableData = document.createElement("td");
+	    newTableData.value = splitTableData[i];
+	    newTableRow[i] = newTableData;
+	}
+    } else {
+	let newTableObject = document.createElement("table");
+	newTableObject.id = mapElementId(lineIndex,newTableObject);
+	let newTableRow = document.createElement("tr");
+	newTableRow.id = mapElementId(lineIndex,newTableRow);
+	newTableObject[0] = newTableRow;
+	let splitTableData = line.split("|");
+	for (let i=0; i< splitTableData.length;i++) {
+	    let newTableData = document.createElement("td");
+	    newTableData.value = splitTableData[i];
+	    newTableData.id = mapElementId(lineIndex, newTableData);
+	    newTableRow[i] = newTableData;
 	}
     }
-    headerSize = headerSize > 5 ? 5 : headerSize;
-    newHeader = docment.createElement("h{headerSize}")
-    newHeader.class = chosenColorScheme
-    newHeader.id = btoa("${lineIndex}.header");
-    newHeader.value = line
-    return newHeader.id
 }
 
 
@@ -57,7 +83,7 @@ function update (textArea) {
 	}
 	if (splitTextArea[i].includes("|") {
 	    // in org mode this is executed by the tab button... should I just assume or add a tab command?
-	    mappedTextArea[i] = createHeader(splitTextArea[i],i);
+	    mappedTextArea[i] = createTable(splitTextArea[i],i);
 	}
     }
     
