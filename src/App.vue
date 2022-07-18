@@ -1,5 +1,5 @@
 <script setup>
-	import HelloWorld from './components/HelloWorld.vue'
+ import HelloWorld from './components/HelloWorld.vue'
  import TheWelcome from './components/TheWelcome.vue'
 </script>
 
@@ -9,13 +9,13 @@
 
       <div class="wrapper">
 	  <HelloWorld  msg="Brandon You did it!" />
-	  <textarea id="testId" @keypress="testFunction(event)" name="test" rows="50" cols="50">
+	  <textarea id="testId" @keypress="orgUpdate" v-model="textArea" name="test" rows="50" cols="50">
 	</textarea>
     </div>
     <div style="padding:20px;">
     </div>
     <div class="wrapper">
-	<HelloWorld @click="createHeading" msg="Brandon You did it!" />
+	<HelloWorld msg="Brandon You did it!" />
 	<div id="interpreted-org" style="alignment: top;">
 	    
 	    
@@ -58,16 +58,14 @@
      name: "app",
      data() {
 	 return {
+	     textArea: "",
 	     event: null,
 	     chosenColorScheme: "",
 	     mappedTextArea: []
 	 }
      },
      methods: {
-	 testFunction: function (event) {
-	     console.log("I ran ${event}");
-	 },
-	 
+
 	 createHeader: function (line, lineIndex) {
 	     let headerSize = 0;
 	     for (let i=0;i<line.length;i++) {
@@ -76,25 +74,27 @@
 		 }
 	     }
 	     headerSize = headerSize > 5 ? 5 : headerSize;
-	     let newHeader = docment.createElement("h{headerSize}");
-	     newHeader.class = chosenColorScheme;
-	     newHeader.id = mapElementId(lineIndex,newHeader);
+	     console.log(headerSize);
+	     console.log(`h${headerSize}`);
+	     let newHeader = document.createElement(`h${headerSize}`, line);
+	     newHeader.class = this.chosenColorScheme;
+	     newHeader.id = this.mapElementId(lineIndex,newHeader);
 	     newHeader.value = line
 	     return newHeader.id
 	 },
 	 
 	 createTable: function (line, lineIndex) {
 	     let tableTag = false;
-	     for (var i = mappedTextArea.length; i > 0; i--) {
-		 if (mappedTextArea[i] != null) {
-		     if (atob(mappedTextArea[i]).toLowerCase().includes("table")) {
+	     for (var i = this.mappedTextArea.length; i > 0; i--) {
+		 if (this.mappedTextArea[i] != null) {
+		     if (atob(this.mappedTextArea[i]).toLowerCase().includes("table")) {
 			 tableTag = true;
 		     }
 		 }
 	     }  
 	     if (tableTag) {
 		 // need  to add and map id's for all these elements
-		 let tableObject = document.getElementById(mappedTextArea[lineIndex])
+		 let tableObject = document.getElementById(this.mappedTextArea[lineIndex])
 		 let newTableRow = document.createElement("tr");
 		 newTableObject[0] = newTableRow;
 		 let splitTableData = line.split("|");
@@ -105,35 +105,35 @@
 		 }
 	     } else {
 		 let newTableObject = document.createElement("table");
-		 newTableObject.id = mapElementId(lineIndex,newTableObject);
+		 newTableObject.id = this.mapElementId(lineIndex,newTableObject);
 		 let newTableRow = document.createElement("tr");
-		 newTableRow.id = mapElementId(lineIndex,newTableRow);
+		 newTableRow.id = this.mapElementId(lineIndex,newTableRow);
 		 newTableObject[0] = newTableRow;
 		 let splitTableData = line.split("|");
 		 for (let i=0; i< splitTableData.length;i++) {
 		     let newTableData = document.createElement("td");
 		     newTableData.value = splitTableData[i];
-		     newTableData.id = mapElementId(lineIndex, newTableData);
+		     newTableData.id = this.mapElementId(lineIndex, newTableData);
 		     newTableRow[i] = newTableData;
 		 }
 	     }
 	 },
 	 
 	 mapElementId: function (lineIndex,element) {
-	     return btoa("${lineIndex}.${element.localName}");
+	     return btoa(`${lineIndex}.${element.localName}`);
 	 },
 
 	 orgUpdate: function () {
 	     const splitter = "\n";
-	     const splitTextArea = textArea.value.split(splitter);
+	     const splitTextArea = this.textArea.split(splitter);
 	     for (var i=0;i<splitTextArea.length;i++) {
 		 if (splitTextArea[i][0] == "*") {
-		     if (mappedTextArea[i] == null) {
-			 mappedTextArea[i] = createHeader(splitTextArea[i],i);
+		     if (this.mappedTextArea[i] == null) {
+			 this.mappedTextArea[i] = this.createHeader(splitTextArea[i],i);
 		     }
 		 }
 		 if (splitTextArea[i].includes("|")) {
-		     mappedTextArea[i] = createTable(splitTextArea[i],i);
+		     this.mappedTextArea[i] = this.createTable(splitTextArea[i],i);
 		 }
 	     }
 	 },
